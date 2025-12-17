@@ -78,23 +78,23 @@ trim = floor(0.1*T);
 keep = trim+1 : T-trim;
 
 Xs = sort(ERR_beta18,1);
-beta18 = mean(Xs(keep,:),1).';
+beta18 = mean(Xs,1).';
 SD_beta18 = std(Xs(keep,:),0,1).';
 
 Xs = sort(ERR_beta14,1);
-beta14 = mean(Xs(keep,:),1).';
+beta14 = mean(Xs,1).';
 SD_beta14 = std(Xs(keep,:),0,1).';
 
 Xs = sort(ERR_beta12,1);
-beta12 = mean(Xs(keep,:),1).';
+beta12 = mean(Xs,1).';
 SD_beta12 = std(Xs(keep,:),0,1).';
 
 Xs = sort(ERR_beta34,1);
-beta34 = mean(Xs(keep,:),1).';
+beta34 = mean(Xs,1).';
 SD_beta34 = std(Xs(keep,:),0,1).';
 
 Xs = sort(ERR_beta78,1);
-beta78 = mean(Xs(keep,:),1).';
+beta78 = mean(Xs,1).';
 SD_beta78 = std(Xs(keep,:),0,1).';
 
 subfolder = 'betas_comparison';
@@ -108,24 +108,36 @@ save(filename, ...
     'beta78','SD_beta78', ...
     'trG');
 
-% % eventual plots
-% figure(1)
-% semilogy(diag(G), 'LineWidth', 5)
-% xlabel('$n$','interpreter','Latex','fontsize',18)
-% ylabel('eigenvalues','fontsize',18)
-% title('Eigenvalues of the matrix','fontsize',18)
-% legend('$\lambda(A)$','interpreter','Latex','fontsize',18)
-% ax = gca;
-% ax.FontSize = 30; 
-% 
-% colors = [
-%     1.0 0.0 0.0;
-%     1.0 0.5 0.0;
-%     1.0 1.0 0.0;
-%     0.0 0.8 0.0;
-%     0.0 0.3 1.0
-% ];
-% 
-% figure(2)
-% hold on
-% errorbar(mvecs, beta18./trG, SD_beta18./trG, '-', 'Color',_
+% eventual plots
+figure(1)
+semilogy(diag(G), 'LineWidth', 5)
+xlabel('$n$','interpreter','Latex','fontsize',18)
+ylabel('eigenvalues','fontsize',18)
+title('Eigenvalues of the matrix','fontsize',18)
+legend('$\lambda(A)$','interpreter','Latex','fontsize',18)
+ax = gca;
+ax.FontSize = 30; 
+
+colors = [
+    1.0 0.0 0.0;
+    1.0 0.5 0.0;
+    1.0 1.0 0.0;
+    0.0 0.8 0.0;
+    0.0 0.3 1.0
+];
+
+figure(2)
+hold on
+errorbar(mvecs, beta18./trG, SD_beta18./trG, '-', 'Color', colors(1,:), 'LineWidth', 5);
+errorbar(mvecs, beta14./trG, SD_beta14./trG, '-', 'Color', colors(2,:), 'LineWidth', 5);
+errorbar(mvecs, beta12./trG, SD_beta12./trG, '-', 'Color', colors(3,:), 'LineWidth', 5);
+errorbar(mvecs, beta34./trG, SD_beta34./trG, '-', 'Color', colors(4,:), 'LineWidth', 5);
+errorbar(mvecs, beta78./trG, SD_beta78./trG, '-', 'Color', colors(5,:), 'LineWidth', 5);
+hold off
+set(gca, 'YScale', 'log'); 
+xlabel('MatVecs','fontsize',18)
+ylabel('Relative errors','fontsize',18)
+title('Comparison of different \beta s','fontsize',18)
+legend('\beta=1/8', '\beta=1/4', '\beta=1/2', '\beta=3/4','\beta=7/8','fontsize',18)
+ax = gca;
+ax.FontSize = 30;

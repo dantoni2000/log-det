@@ -71,18 +71,13 @@ for l = l_min:step:l_max
 
 end
 
-% computation of the errors (10% trimmed)
-trim = floor(0.1*T);
-keep = trim+1 : T-trim;
+% computation of the errors 
 
-Xs = sort(ERR_Lanczos_10,1);
-Lanczos_10 = mean(Xs(keep,:),1).';
+Lanczos_10 = mean(ERR_Lanczos_10,1).';
 
-Xs = sort(ERR_Lanczos_50,1);
-Lanczos_50 = mean(Xs(keep,:),1).';
+Lanczos_50 = mean(ERR_Lanczos_50,1).';
 
-Xs = sort(ERR_traceest,1);
-traceest = mean(Xs(keep,:),1).';
+traceest = mean(ERR_traceest,1).';
 
 subfolder = 'Lanczos_comparison';
 filename = fullfile(subfolder, sprintf('results_Lanczos%d.mat',c));

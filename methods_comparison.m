@@ -10,7 +10,7 @@ addpath('tools')
 T = 50;
 
 % number of the experiment
-c = 1;
+c = 4;
 
 % dimension of the matrix
 n = 4000; 
@@ -24,7 +24,7 @@ A = G;
 l_min = 100; l_max = 1000; step = 100; lgt = 1 + (l_max - l_min) / step;
 
 % iterations of Lanczos
-m = 5;
+m = 10;
 
 % Preallocation of the matrices for the errors of the methods (T x lgt)
 ERR_detective = zeros(T,lgt);
@@ -70,7 +70,7 @@ for l = l_min:step:l_max
         % low rank
         [~,LhatBig,~] = Nystrom_sanity(A,l+m);
         ERR_LowRank(t,l/step) = abs( ...
-            sum(log(diag(LhatBig+eye(l+m,l+m))),"all") - trG );
+            sum(log(diag(LhatBig+eye(l+m,l+m))),"all") - trG);
 
         % funNys++
         N = l/(2*m);
@@ -97,27 +97,27 @@ trim = floor(0.1*T);
 keep = trim+1 : T-trim;
 
 Xs = sort(ERR_detective,1);
-err_detective = mean(Xs(keep,:),1).';
+err_detective = mean(Xs,1).';
 SD_detective  = std(Xs(keep,:),0,1).';
 
 Xs = sort(ERR_HS,1);
-err_HS = mean(Xs(keep,:),1).';
+err_HS = mean(Xs,1).';
 SD_HS  = std(Xs(keep,:),0,1).';
 
 Xs = sort(ERR_1S,1);
-err_1S = mean(Xs(keep,:),1).';
+err_1S = mean(Xs,1).';
 SD_1S  = std(Xs(keep,:),0,1).';
 
 Xs = sort(ERR_LowRank,1);
-err_LowRank = mean(Xs(keep,:),1).';
+err_LowRank = mean(Xs,1).';
 SD_LowRank  = std(Xs(keep,:),0,1).';
 
 Xs = sort(ERR_funNys,1);
-err_funNys = mean(Xs(keep,:),1).';
+err_funNys = mean(Xs,1).';
 SD_funNys  = std(Xs(keep,:),0,1).';
 
 Xs = sort(ERR_PlainGH,1);
-err_PlainGH = mean(Xs(keep,:),1).';
+err_PlainGH = mean(Xs,1).';
 SD_PlainGH  = std(Xs(keep,:),0,1).';
 
 subfolder = 'methods_comparison';
