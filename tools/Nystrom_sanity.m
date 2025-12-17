@@ -43,14 +43,15 @@ V = Q * U;
 diagHinv = diag(inv(H))';
 
 if beta < 1
-    diagHinv_half = diag(inv(H(1:floor(lb/2),1:floor(lb/2))))';
+    lbb = floor(beta*lb);
+    diagHinv_half = diag(inv(H(1:floor(lbb),1:floor(lbb))))';
 
     % leave-one-out estimate of Nys(A)_βl and Nys(A)_βl/2
-    err = norm(((R / C) / (C')) ./ diagHinv, 'fro') / sqrt(l);
-    err_half = norm(((R(1:floor(lb/2),1:floor(lb/2)) / C(1:floor(lb/2),1:floor(lb/2))) / (C(1:floor(lb/2),1:floor(lb/2))')) ./ diagHinv_half, 'fro') / sqrt(floor(lb/2));
+    err = norm(((R / C) / (C')) ./ diagHinv, 'fro') / sqrt(lb);
+    err_half = norm(((R(1:floor(lbb),1:floor(lbb)) / C(1:floor(lbb),1:floor(lbb))) / (C(1:floor(lbb),1:floor(lbb))')) ./ diagHinv_half, 'fro') / sqrt(lbb);
 
     % sanity check of the approximation: if Nystrom is working fine, conclude the approximation
-    if sqrt(2*m/beta / (lb+2*m/beta)) * err_half >= err
+    if sqrt(m / ((1-beta)*lb+m)) * err_half >= err
         OOmega = randn(length(d), l-lb);
         YY = d .* OOmega;
         YY = YY + nu * OOmega;
