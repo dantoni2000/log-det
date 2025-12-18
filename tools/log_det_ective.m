@@ -19,7 +19,7 @@ function [its,Ptr] = log_det_ective(A,l,m,beta)
 Ptr = 0;
 
 % Compute the Nystrom approximation with βl matvecs
-[U,Lhat] = Nystrom_sanity(A,l,beta,m);
+[U,Lhat] = Nystrom(A,l,beta,m);
 [z,~] = size(Lhat);
 Pp = sum(log(diag(Lhat+eye(z,z))),"all");
 

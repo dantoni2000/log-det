@@ -21,7 +21,7 @@ function [its,Ptr] = funNyspp(A,l,N,m)
 Ptr = 0;
 Pit = zeros(N,1);
 
-[U,Lhat,~] = Nystrom_sanity(A,l);
+[U,Lhat,~] = Nystrom(A,l);
 Pp = sum(log(diag(Lhat+eye(l,l))),"all");
     
 for i = 1:N

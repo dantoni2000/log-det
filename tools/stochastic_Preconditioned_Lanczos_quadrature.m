@@ -38,7 +38,7 @@ end
 
 % if l>0, compute the Nyström approximation, compute the exact value of trace log(P)
 if l>0
-    [U,Lhat,~] = Nystrom_sanity(A,l);
+    [U,Lhat,~] = Nystrom(A,l);
     Pp = sum(log(diag(Lhat+eye(l,l))),"all");
 end
   
