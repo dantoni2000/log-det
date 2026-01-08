@@ -1,10 +1,10 @@
-%% This code computes the stochastic Lanczos quadrature of the (diagonal) matrix log(A+I) using the lod-det-ective algorithm
+%% This code computes the stochastic Lanczos quadrature of the matrix log(A+I) using the lod-det-ective algorithm
 
 function [its,Ptr] = log_det_ective(A,l,m,beta)
 
 % input: 
 
-% A = diagonal input matrix, 
+% A = input matrix, 
 % l = number of matvecs for the Nyström approximation, 
 % m = number of steps of the Lanczos method, 
 % beta = parameter of the mixed strategy.

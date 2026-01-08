@@ -1,10 +1,10 @@
-%% This code computes the stochastic Lanczos quadrature of the (diagonal) matrix log(A+I) via the splitting trace log(A+I) = trace log(P) + trace log(sqrt(P)(A+I)sqrt(P)), using the slq to the residual term
+%% This code computes the stochastic Lanczos quadrature of the matrix log(A+I) via the splitting trace log(A+I) = trace log(P) + trace log(sqrt(P)(A+I)sqrt(P)), using the slq to the residual term
 
 function [its,Ptr] = stochastic_Preconditioned_Lanczos_quadrature(A,l,N,m,tol_beta,tolrel,tolabs)
 
 % input:
 
-% A = diagonal input matrix, 
+% A = input matrix, 
 % l = number of matvecs for the Nyström approximation,
 % N = number of samples for the Girard-Hutchinson estimator,
 % m = number of steps of the Lanczos method,
@@ -46,7 +46,7 @@ end
 for i = 1:N
     v = randn(n,1);
     [Pit(i),tr] = Preconditioned_Lanczos_log(A,v,m,U,Lhat,tol_beta,tolrel,tolabs);
-    Ptr = Ptr + tr(end,1);
+    Ptr = Ptr + tr(end-1,1);
 end
     
 its = 1/N * sum(Pit);

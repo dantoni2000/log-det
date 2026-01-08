@@ -51,7 +51,7 @@ elseif c == 3 %Example Gaps
         A = A + (l/j^2*x) * x';
     end
 
-    for j=601:1500
+    for j=601:4000
         x = sprand(n,1,0.01);
         A = A + (p/j^2*x) * x';
     end

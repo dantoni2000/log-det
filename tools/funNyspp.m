@@ -1,10 +1,10 @@
-%% This code computes the stochastic Lanczos quadrature of the (diagonal) matrix log(A+I) using the funNys++ algorithm
+%% This code computes the stochastic Lanczos quadrature of the matrix log(A+I) using the funNys++ algorithm
 
 function [its,Ptr] = funNyspp(A,l,N,m)
 
 % input: 
  
-% A = diagonal input matrix, 
+% A = input matrix, 
 % l = number of matvecs for the Nyström approximation, 
 % N = number of samples for the Girard-Hutchinson estimator, 
 % m = number of steps of the Lanczos method.
