@@ -1,4 +1,4 @@
-%% This code computes the errors produced by the strategies described in the paper, with diagonal matrices
+%% This code computes the errors produced by the strategies described in the paper
 
 clear all
 close all
@@ -7,10 +7,10 @@ close all
 addpath('tools')
 
 % number of tries
-T = 50;
+T = 100;
 
 % number of the experiment
-c = 1;
+c = 3;
 
 % dimension of the matrix
 n = 4000; 
@@ -42,9 +42,9 @@ mvecs = zeros(lgt,1);
 % comparison of the errors changing the total matvecs
 for l = l_min:step:l_max
 
-    mvecs(l/step) = l;
+    mvecs(l/step) = l
         
-    [V, L, ~] = Nystrom_sanity(A,l);
+    [V, L, ~] = Nystrom(A,l);
     invsqrtL = diag(diag(L + eye(size(L))).^-0.5);
     
     % sqrt(P)^-1 = V * sqrt(L+I)^-1 V' + (I - V * V')

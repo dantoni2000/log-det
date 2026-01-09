@@ -1,4 +1,4 @@
-%% This code computes the errors produced by the strategies described in the paper, with diagonal matrices
+%% This code computes the errors produced by the strategies described in the paper
 
 clear all
 close all
@@ -7,10 +7,10 @@ warning off
 addpath('tools')
 
 % number of tries
-T = 50;
+T = 100;
 
 % number of the experiment
-c = 4;
+c = 3;
 
 % dimension of the matrix
 n = 4000; 
@@ -24,14 +24,13 @@ A = G;
 l_min = 100; l_max = 1000; step = 100; lgt = 1 + (l_max - l_min) / step;
 
 % iterations of Lanczos
-m = 10;
+m = 50;
 
 % Preallocation of the matrices for the errors of the methods (T x lgt)
 ERR_detective = zeros(T,lgt);
 ERR_HS        = zeros(T,lgt);
 ERR_1S        = zeros(T,lgt);
 ERR_LowRank   = zeros(T,lgt);
-ERR_funNys    = zeros(T,lgt);
 ERR_PlainGH   = zeros(T,lgt);
 
 % Final averaged errors
@@ -39,7 +38,6 @@ err_detective = zeros(lgt,1); SD_detective  = zeros(lgt,1);
 err_HS        = zeros(lgt,1); SD_HS          = zeros(lgt,1);
 err_1S        = zeros(lgt,1); SD_1S          = zeros(lgt,1);
 err_LowRank   = zeros(lgt,1); SD_LowRank     = zeros(lgt,1);
-err_funNys    = zeros(lgt,1); SD_funNys      = zeros(lgt,1);
 err_PlainGH   = zeros(lgt,1); SD_PlainGH     = zeros(lgt,1);
 
 S = [];
@@ -48,7 +46,7 @@ mvecs = zeros(lgt,1);
 % comparison of the errors changing the total matvecs
 for l = l_min:step:l_max
 
-    mvecs(l/step) = l
+    mvecs(l/step) = l + m
         
     for t = 1:T
 
@@ -68,14 +66,9 @@ for l = l_min:step:l_max
         ERR_1S(t,l/step) = abs(tr_1S - trG);
 
         % low rank
-        [~,LhatBig,~] = Nystrom_sanity(A,l+m);
+        [~,LhatBig,~] = Nystrom(A,l+m);
         ERR_LowRank(t,l/step) = abs( ...
             sum(log(diag(LhatBig+eye(l+m,l+m))),"all") - trG);
-
-        % funNys++
-        N = l/(2*m);
-        [~,tr_fN] = funNyspp(A,l/2+m,N,m);
-        ERR_funNys(t,l/step) = abs(tr_fN - trG);
 
         % SLQ
         FrG = sqrt(sum(log(diag(G+eye(n,n))).^2,"all"));
@@ -112,10 +105,6 @@ Xs = sort(ERR_LowRank,1);
 err_LowRank = mean(Xs,1).';
 SD_LowRank  = std(Xs(keep,:),0,1).';
 
-Xs = sort(ERR_funNys,1);
-err_funNys = mean(Xs,1).';
-SD_funNys  = std(Xs(keep,:),0,1).';
-
 Xs = sort(ERR_PlainGH,1);
 err_PlainGH = mean(Xs,1).';
 SD_PlainGH  = std(Xs(keep,:),0,1).';
@@ -123,14 +112,14 @@ SD_PlainGH  = std(Xs(keep,:),0,1).';
 subfolder = 'methods_comparison';
 filename = fullfile(subfolder, sprintf('results_comparison%d.mat',c));
 save(filename, ...
-    'ERR_detective','ERR_HS','ERR_1S','ERR_LowRank','ERR_funNys','ERR_PlainGH', ...
+    'ERR_detective','ERR_HS','ERR_1S','ERR_LowRank','ERR_PlainGH', ...
     'err_detective','SD_detective', ...
     'err_HS','SD_HS', ...
     'err_1S','SD_1S', ...
     'err_LowRank','SD_LowRank', ...
-    'err_funNys','SD_funNys', ...
     'err_PlainGH','SD_PlainGH', ...
     'trG');
+
 
 % eventual plots 
 figure(1)
@@ -142,18 +131,23 @@ legend('$\lambda(A)$','interpreter','Latex','fontsize',18)
 ax = gca;
 ax.FontSize = 30; 
 
+
+colors = [ 0.36 0.14 0.32; 
+           1.0 0.5 0.0; 
+           0.0 0.8 0.0;
+           1.0 0.0 1.0;
+           0.0 0.3 1.0];
+
 figure(2)
 hold on
-errorbar(mvecs,err_detective./trG,SD_detective./trG,'-g', 'LineWidth', 5) 
-errorbar(mvecs,err_HS./trG,SD_HS./trG,'-b', 'LineWidth', 5) 
-errorbar(mvecs,err_1S./trG,SD_1S./trG,'-r', 'LineWidth', 5) 
-errorbar(mvecs,err_LowRank./trG,SD_LowRank./trG,'-k', 'LineWidth', 5) 
-errorbar(mvecs,err_funNys./trG,SD_funNys./trG,'-c', 'LineWidth', 5) 
-errorbar(mvecs(S>1),err_PlainGH(S>1)./trG,SD_PlainGH(S>1)./trG, ...
-    'Color', [0.9290 0.6940 0.1250], 'MarkerFaceColor', [0.6350 0.0780 0.1840], 'LineWidth', 5)
+errorbar(mvecs, err_detective./trG, SD_detective./trG, '-', 'Color', 'm', 'LineWidth', 4);
+errorbar(mvecs+10, err_HS./trG, SD_HS./trG, '-', 'Color', colors(3,:), 'LineWidth', 4);
+errorbar(mvecs-10, err_1S./trG, SD_1S./trG, '-', 'Color', colors(5,:), 'LineWidth', 4);
+errorbar(mvecs, err_LowRank./trG, SD_LowRank./trG, '-', 'Color', colors(2,:), 'LineWidth', 4);
+errorbar(mvecs(err_PlainGH < 10^8), err_PlainGH(err_PlainGH < 10^8)./trG, SD_PlainGH(err_PlainGH < 10^8)./trG, '-', 'Color', colors(1,:), 'LineWidth', 4);
 hold off
 set(gca, 'YScale', 'log'); 
-xlabel('$\ell$','interpreter','Latex','fontsize',18)
+xlabel('matvecs','interpreter','Latex','fontsize',18)
 ylabel('Relative errors','fontsize',18)
 title('Comparison of the errors for the strategies','fontsize',18)
 legend('error detective', 'error HalfSamples', 'error 1Sample', ...
