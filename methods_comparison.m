@@ -10,7 +10,7 @@ addpath('tools')
 T = 100;
 
 % number of the experiment
-c = 3;
+c = 1;
 
 % dimension of the matrix
 n = 4000; 
@@ -24,7 +24,7 @@ A = G;
 l_min = 100; l_max = 1000; step = 100; lgt = 1 + (l_max - l_min) / step;
 
 % iterations of Lanczos
-m = 50;
+m = 10;
 
 % Preallocation of the matrices for the errors of the methods (T x lgt)
 ERR_detective = zeros(T,lgt);
@@ -32,6 +32,8 @@ ERR_HS        = zeros(T,lgt);
 ERR_1S        = zeros(T,lgt);
 ERR_LowRank   = zeros(T,lgt);
 ERR_PlainGH   = zeros(T,lgt);
+ERR_kraw_power= zeros(T,lgt);
+ERR_funNyspp  = zeros(T,lgt);
 
 % Final averaged errors
 err_detective = zeros(lgt,1); SD_detective  = zeros(lgt,1);
@@ -39,6 +41,8 @@ err_HS        = zeros(lgt,1); SD_HS          = zeros(lgt,1);
 err_1S        = zeros(lgt,1); SD_1S          = zeros(lgt,1);
 err_LowRank   = zeros(lgt,1); SD_LowRank     = zeros(lgt,1);
 err_PlainGH   = zeros(lgt,1); SD_PlainGH     = zeros(lgt,1);
+err_kraw_power= zeros(lgt,1); SD_kraw_power  = zeros(lgt,1);
+err_funNyspp  = zeros(lgt,1); SD_funNyspp    = zeros(lgt,1);
 
 S = [];
 mvecs = zeros(lgt,1);
@@ -80,6 +84,18 @@ for l = l_min:step:l_max
         [~,tr_PGH] = stochastic_Preconditioned_Lanczos_quadrature(A,0,s,m_conv);
         ERR_PlainGH(t,l/step) = abs(tr_PGH - trG);
 
+        % Krylov aware
+        b = 4;
+        Nnow = 1;
+        nnow_L = 10;
+        q=max(0,floor((l+m -(b+Nnow)*nnow_L )/b));
+        tr_power = krylov_aware(A,b,q,nnow_L,Nnow,1);
+        ERR_kraw_power(t,l/step) = abs(tr_power - trG);
+
+        % funNys++
+        N = floor(l/(2*m_conv))+1;
+        [~,PPtr] = funNyspp(A,l/2+m_conv,N,m_conv);
+        ERR_funNyspp(t,l/step) = abs(PPtr - trG);
     end
 
     S = [S;s];
@@ -109,15 +125,25 @@ Xs = sort(ERR_PlainGH,1);
 err_PlainGH = mean(Xs,1).';
 SD_PlainGH  = std(Xs(keep,:),0,1).';
 
+Xs = sort(ERR_kraw_power,1);
+err_kraw_power = mean(Xs,1).';
+SD_kraw_power  = std(Xs(keep,:),0,1).';
+
+Xs = sort(ERR_funNyspp,1);
+err_funNyspp = mean(Xs,1).';
+SD_funNyspp  = std(Xs(keep,:),0,1).';
+
 subfolder = 'methods_comparison';
 filename = fullfile(subfolder, sprintf('results_comparison%d.mat',c));
 save(filename, ...
-    'ERR_detective','ERR_HS','ERR_1S','ERR_LowRank','ERR_PlainGH', ...
+    'ERR_detective','ERR_HS','ERR_1S','ERR_LowRank','ERR_PlainGH', 'ERR_kraw_power',...
     'err_detective','SD_detective', ...
     'err_HS','SD_HS', ...
     'err_1S','SD_1S', ...
     'err_LowRank','SD_LowRank', ...
     'err_PlainGH','SD_PlainGH', ...
+    'err_kraw_power','SD_kraw_power', ...
+    'err_funNyspp','SD_funNyspp', ...
     'trG');
 
 
@@ -145,12 +171,14 @@ errorbar(mvecs+10, err_HS./trG, SD_HS./trG, '-', 'Color', colors(3,:), 'LineWidt
 errorbar(mvecs-10, err_1S./trG, SD_1S./trG, '-', 'Color', colors(5,:), 'LineWidth', 4);
 errorbar(mvecs, err_LowRank./trG, SD_LowRank./trG, '-', 'Color', colors(2,:), 'LineWidth', 4);
 errorbar(mvecs(err_PlainGH < 10^8), err_PlainGH(err_PlainGH < 10^8)./trG, SD_PlainGH(err_PlainGH < 10^8)./trG, '-', 'Color', colors(1,:), 'LineWidth', 4);
+errorbar(mvecs, err_kraw_power./trG, SD_kraw_power./trG, '-', 'Color', 'k', 'LineWidth', 4);
+errorbar(mvecs, err_funNyspp./trG, SD_funNyspp./trG, 'o-', 'Color', 'r', 'LineWidth', 4);
 hold off
 set(gca, 'YScale', 'log'); 
 xlabel('matvecs','interpreter','Latex','fontsize',18)
 ylabel('Relative errors','fontsize',18)
 title('Comparison of the errors for the strategies','fontsize',18)
 legend('error detective', 'error HalfSamples', 'error 1Sample', ...
-       'error LowRank', 'error funNys++', 'error Plain GH','fontsize',18)
+       'error LowRank', 'error Plain GH', 'error b-Krylov aware', 'error funNys++', 'fontsize',18)
 ax = gca;
 ax.FontSize = 30;
